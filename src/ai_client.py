@@ -38,16 +38,16 @@ def generate_script(topic=None, specific_hook=None, style="curiosity", is_test=F
          
          system_instruction = """
          STYLE: VIRAL "TOP 3 RANKING" (Countdown).
-         STRUCTURE (MANDATORY):
-         - HOOK (2-3 scenes): High-tension, hyper-engaging intro. State a mind-blowing or controversial fact that proves WHY this topic is insane. NO vague hype.
-         - POSITION 3 (3-4 scenes): The narration script MUST EXACTLY start with 'En el Top 3: [REAL EXACT NAME]' or 'En el Puesto 3: [REAL EXACT NAME]'. Do NOT skip this detail. Then give:
+         STRUCTURE (MANDATORY FOR 3-4 MINUTE VIDEO):
+         - HOOK (4-6 scenes): High-tension, hyper-engaging intro. State a mind-blowing or controversial fact that proves WHY this topic is insane. NO vague hype.
+         - POSITION 3 (10-15 scenes): The narration script MUST EXACTLY start with 'En el Top 3: [REAL EXACT NAME]' or 'En el Puesto 3: [REAL EXACT NAME]'. Do NOT skip this detail. Then give:
              * A shocking fact or dark secret about this item immediately.
              * Focus 100% on the mind-blowing PLOT, the CHARACTERS, or the CONTENT itself.
              * Use visceral language and high-energy pacing. Keep them glued.
-             * ONE specific memorable, crazy detail (a bizarre scene, a shocking line, a wild anecdote) that makes it stand out.
-         - POSITION 2 (3-4 scenes): Same structure as Position 3. MUST start narration with 'En el Puesto 2:'. Escalate the tension. Make this one sound even more incredible.
-         - POSITION 1 (3-4 scenes): Same structure. MUST start narration with 'En el Puesto 1:'. This is the final boss. Explain WHY it is the undisputed #1 using the most shocking and unbelievable verifiable facts.
-         - CONCLUSION (1 scene): One strong, concrete, mind-bending closing line that makes them want to argue in the comments or share the video. NO filler like 'these are amazing'.
+             * Provide multiple deep, specific details. Tell a mini-story about this position.
+         - POSITION 2 (10-15 scenes): Same structure as Position 3. MUST start narration with 'En el Puesto 2:'. Escalate the tension. Make this one sound even more incredible. Tell a deep mini-story.
+         - POSITION 1 (12-16 scenes): Same structure. MUST start narration with 'En el Puesto 1:'. This is the final boss. Explain WHY it is the undisputed #1 using the most shocking and unbelievable verifiable facts. Go extremely deep.
+         - CONCLUSION (2-3 scenes): One strong, concrete, mind-bending closing line that makes them want to argue in the comments or share the video. NO filler like 'these are amazing'.
          TONE: Hyper-enthusiastic, suspenseful, like you're revealing forbidden knowledge. Imagine a knowledgeable friend explaining WHY each item matters.
          CRITICAL: Every scene must contain at least ONE specific verifiable datum (year, name, number, award, country). ZERO vague sentences.
          DO NOT USE the Perfect Loop rule. The conclusion must be a proper ending, not repeating the intro.
@@ -129,6 +129,10 @@ def generate_script(topic=None, specific_hook=None, style="curiosity", is_test=F
     prompt = f"""
     You are not generating a background.
     You are generating a LONG-FORM YOUTUBE VIDEO PLAN (3-4 minutes) where visuals must MATCH the narration moment by moment.
+    CRITICAL RULE: The video MUST be at least 3 minutes long. You MUST write at least 500-600 words of narration. Do NOT output a short script. You MUST generate between 40 and 60 scenes.
+
+    STRICT RULES:
+    1. **Format**: Output pure valid JSON without markdown formatting. Do not wrap in ```json.
     
     {topic_instruction}
     {system_instruction}
@@ -270,9 +274,13 @@ def generate_script(topic=None, specific_hook=None, style="curiosity", is_test=F
     try:
         from g4f.client import Client as G4FClient
         g4f_client = G4FClient()
+        
+        # Inyectar una regla extrema para forzar la longitud del video
+        g4f_prompt = prompt + "\n\nCRITICAL FINAL REMINDER: The user explicitly requested a 3-4 MINUTE VIDEO. This requires AT LEAST 40-50 scenes. DO NOT output a short 10-scene video. Expand the script, add deep details, make it 500+ words long, but KEEP the JSON formatting perfectly valid."
+        
         g4f_response = g4f_client.chat.completions.create(
             model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}]
+            messages=[{"role": "user", "content": g4f_prompt}]
         )
         text_response = g4f_response.choices[0].message.content
         if text_response.startswith("```json"):

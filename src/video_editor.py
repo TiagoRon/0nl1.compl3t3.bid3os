@@ -854,7 +854,7 @@ def create_short(script_data, audio_files, background_dir, music_dir, output_fil
 
         final_layers = [video_bg] + subtitle_clips
         final = CompositeVideoClip(final_layers, size=(VIDEO_WIDTH, VIDEO_HEIGHT)).set_audio(final_audio)
-        final.write_videofile(output_file, fps=30, codec='libx264', audio_codec='aac', bitrate="5000k", preset='fast', threads=4)
+        final.write_videofile(output_file, fps=24, codec='libx264', audio_codec='aac', bitrate="5000k", preset='ultrafast', threads=1)
         
         # Cleanup
         final.close()
@@ -1583,15 +1583,15 @@ def assemble_video(scenes, music_dir, output_file, title_text=None, mood="myster
 
         custom_logger = CancelableLogger(is_cancelled, progress_callback)
 
-        # OPTIMIZED WRITE: FAST PRESET, 4 THREADS, 5000k BITRATE (plenty for 720p)
+        # OPTIMIZED WRITE: ULTRAFAST PRESET, 1 THREAD (To prevent Out of Memory in GH Actions)
         final_video.write_videofile(
             output_file, 
-            fps=30, 
+            fps=24, 
             codec='libx264', 
             audio_codec='aac', 
             bitrate="5000k", 
-            preset='fast',        # OPTIMIZATION: Great speed/quality trade-off
-            threads=4,            # OPTIMIZATION: 4 threads for faster encoding
+            preset='ultrafast',    # OPTIMIZATION: Less memory buffer
+            threads=1,            # OPTIMIZATION: 1 thread saves huge amount of RAM
             logger=custom_logger
         )
         # Cleanup Resources

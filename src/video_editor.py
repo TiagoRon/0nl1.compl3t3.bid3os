@@ -1340,7 +1340,7 @@ def assemble_video(scenes, music_dir, output_file, title_text=None, mood="myster
                     # Fade in with a slight brightness pop
                     c = c.fadein(0.2).fl(lambda gf, t: np.minimum(255, gf(t) * (1.2 if t < 0.1 else 1.0)).astype('uint8'))
                 processed_clips.append(c)
-            final_video = concatenate_videoclips(processed_clips, padding=-0.3, method="compose")
+            final_video = concatenate_videoclips(processed_clips, method="chain")
         else:
             final_video = final_clips[0]
         

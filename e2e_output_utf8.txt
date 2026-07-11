@@ -1,0 +1,88 @@
+﻿python : Traceback 
+(most recent call 
+last):
+En línea: 1 Carácter: 1
++ python e2e_test.py > 
+e2e_output.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (Traceback (mo   
+ st recent call las    
+t)::String) [], Re    
+moteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+  File "C:\Users\tiago\
+Desktop\Venta_APP\Local
+WithoutGithub\src\video
+_editor.py", line 
+1074, in assemble_video
+    scale_factor = 1.0 
++ (clip_idx * 0.08)
+                       
+   ^^^^^^^^
+NameError: name 
+'clip_idx' is not 
+defined
+Running Quick Test...
+
+--- Generating Video 1/1 ---
+1. Generating script with AI... (Topic: Historia corta test viral, Style: curiosity)
+   Title: ­ƒñ» Mind-Blowing History Fact! Pyramids & Mammoths?!
+Ô£à Agregado a historial (Preventivo) para no repetir.
+2. Analyzing scenes and generating assets...
+   Scenes detected: 2
+   ­ƒùú´©Å Selected Voice: en-US-JennyNeural
+   ­ƒÄ¼ Scene 1: general [sand, blue, white, brown]
+ÔÜá´©Å Advertencia: No se recibieron tiempos de subt├¡tulos para escena 0. Intentando alinear con Whisper...
+ÔÅ│ Loading Whisper model (tiny)...
+Ô£à Whisper model loaded.
+   Ô£à Timings recuperados con Whisper (20 palabras).
+      ÔÅ▒´©Å Escena larga (6.0s) -> Dividiendo en 2 clips.
+      ­ƒÄ» T├®rmino espec├¡fico detectado: 'Great Pyramids of Giza, Woolly Mammoth'
+   ­ƒöì Searching Pexels for: 'Great Pyramids of Giza, Woolly Mammoth cinematic'...
+      Ô£à Found 15 new videos for 'Great Pyramids of Giza, Woolly Mammoth cinematic' (filtered 0 duplicates)
+   Ô¼ç´©Å Downloading stock video... (ID: 34650830 | 1080x1920)
+      Ô£à Video espec├¡fico encontrado para 'Great Pyramids of Giza, Woolly Mammoth'
+   ­ƒÄ¼ Scene 2: general [purple, blue, yellow, black]
+ÔÜá´©Å Advertencia: No se recibieron tiempos de subt├¡tulos para escena 1. Intentando alinear con Whisper...
+   Ô£à Timings recuperados con Whisper (11 palabras).
+      ÔÅ▒´©Å Escena larga (6.7s) -> Dividiendo en 2 clips.
+   ­ƒöì Searching Pexels for: 'Close up person with surprised expression, hands making an explosion gesture near head, fast cut to abstract time warp effect cinematic'...
+      Ô£à Found 15 new videos for 'Close up person with surprised expression, hands making an explosion gesture near head, fast cut to abstract time warp effect cinematic' (filtered 0 duplicates)
+   Ô¼ç´©Å Downloading stock video... (ID: 34777856 | 1080x1920)
+   ­ƒöì Searching Pexels for: 'Close up person with surprised expression, hands making an explosion gesture near head, fast cut to abstract time warp effect close up cinematic'...
+      Ô£à Found 15 new videos for 'Close up person with surprised expression, hands making an explosion gesture near head, fast cut to abstract time warp effect close up cinematic' (filtered 0 duplicates)
+   Ô¼ç´©Å Downloading stock video... (ID: 6657899 | 1080x1920)
+   ­ƒÄÁ Mood detected: curiosity
+­ƒôØ Metadata guardada.
+­ƒÄ¼ VIDEO VIBE: MINIMAL
+   Ô£¿ Intro: glitch_start | Outro: glitch_out
+Error assembling video: name 'clip_idx' is not defined
+Video creation failed.
+­ƒº╣ Cleaning up temporary files...
+Ô£¿ Cleanup completed.
+­ƒôé Debug Output Content: ['El_Delirio_de_Cotard_Cuando_tu_Mente_Te_Entierra_Vivo', 'El_Imperio_Subterr├íneo_de_Capadocia_Las_Ciudades_Ocultas', 'El_Reino_Perdido_de_Tartessos_La_Atl├íntida_Espa├▒ola', 'La_VENGANZA_OCULTA_de_Viriato_que_Roma_TEMI├ô__Hijos_de_Hispania', 'La_Verdad_Escalofriante_de_la_Encefalitis_Let├írgica', 'Mind-Blowing_History_Fact_Pyramids__Mammoths', 'Mind-Blowing_Mandela_Effects_You_Wont_Believe', 'Partos_en_Ata├║des_El_Secreto_M├ís_Oscuro_de_la_Muerte', 'TEST_Deep_Seas_Scariest_Secrets_Revealed', 'TEST_Los_Rostros_M├ís_├ÜNICOS_del_Planeta_Tierra_Top3', 'TEST_SERES_del_OC├ëANO_que_te_DEJAR├üN_SIN_PALABRAS', 'The_Glitch_in_Reality_Everyone_Experiences', 'The_Glitch_in_Reality_Unpacking_the_Mandela_Effect', 'The_Mandela_Effect_Mind-Bending_Realities', 'The_SHOCKING_TRUTH_About_Ancient_Statues', 'Top_3_Lost_Cities_Uncover_Historys_Forgotten_Wonders', 'Top_3_Los_Rostros_M├ís_Inusuales_de_la_Historia', 'Y_si_VIVI├ëRAMOS_en_MARTE__El_FUTURO_Inimaginable_de_la_Humanidad']
+  C:\Users\tiago\Desktop\Venta_APP\LocalWithoutGithub\output: []
+  C:\Users\tiago\Desktop\Venta_APP\LocalWithoutGithub\output\El_Delirio_de_Cotard_Cuando_tu_Mente_Te_Entierra_Vivo: ['audio_0.mp3', 'audio_1.mp3', 'audio_2.mp3', 'audio_3.mp3', 'audio_4.mp3', 'audio_5.mp3', 'metadata.json', 'metadata.txt', 'scene_0_part0.mp4', 'scene_0_part1.mp4', 'scene_1_specific.mp4', 'scene_2_part0.mp4', 'scene_2_part1.mp4', 'scene_2_part2.mp4', 'scene_3_part0.mp4', 'scene_3_part1.mp4', 'scene_3_part2.mp4', 'scene_4_part0.mp4', 'scene_4_part1.mp4', 'scene_4_part2.mp4', 'scene_5_specific.mp4', 'short_final.mp4']
+  C:\Users\tiago\Desktop\Venta_APP\LocalWithoutGithub\output\El_Imperio_Subterr├íneo_de_Capadocia_Las_Ciudades_Ocultas: ['metadata.json', 'metadata.txt']
+  C:\Users\tiago\Desktop\Venta_APP\LocalWithoutGithub\output\El_Reino_Perdido_de_Tartessos_La_Atl├íntida_Espa├▒ola: ['metadata.json', 'metadata.txt']
+  C:\Users\tiago\Desktop\Venta_APP\LocalWithoutGithub\output\La_VENGANZA_OCULTA_de_Viriato_que_Roma_TEMI├ô__Hijos_de_Hispania: ['metadata.json', 'metadata.txt', 'short_final.mp4']
+  C:\Users\tiago\Desktop\Venta_APP\LocalWithoutGithub\output\La_Verdad_Escalofriante_de_la_Encefalitis_Let├írgica: ['metadata.json', 'metadata.txt']
+  C:\Users\tiago\Desktop\Venta_APP\LocalWithoutGithub\output\Mind-Blowing_History_Fact_Pyramids__Mammoths: ['metadata.json', 'metadata.txt']
+  C:\Users\tiago\Desktop\Venta_APP\LocalWithoutGithub\output\Mind-Blowing_Mandela_Effects_You_Wont_Believe: ['metadata.json', 'metadata.txt']
+  C:\Users\tiago\Desktop\Venta_APP\LocalWithoutGithub\output\Partos_en_Ata├║des_El_Secreto_M├ís_Oscuro_de_la_Muerte: ['audio_0.mp3', 'audio_1.mp3', 'metadata.json', 'metadata.txt', 'scene_0_part0.mp4', 'scene_0_part1.mp4', 'scene_1_part0.mp4', 'scene_1_part1.mp4', 'short_final.mp4']
+  C:\Users\tiago\Desktop\Venta_APP\LocalWithoutGithub\output\TEST_Deep_Seas_Scariest_Secrets_Revealed: ['metadata.json', 'metadata.txt', 'short_final.mp4']
+  C:\Users\tiago\Desktop\Venta_APP\LocalWithoutGithub\output\TEST_Los_Rostros_M├ís_├ÜNICOS_del_Planeta_Tierra_Top3: ['metadata.json', 'metadata.txt', 'short_final.mp4']
+  C:\Users\tiago\Desktop\Venta_APP\LocalWithoutGithub\output\TEST_SERES_del_OC├ëANO_que_te_DEJAR├üN_SIN_PALABRAS: ['metadata.json', 'metadata.txt', 'short_final.mp4']
+  C:\Users\tiago\Desktop\Venta_APP\LocalWithoutGithub\output\The_Glitch_in_Reality_Everyone_Experiences: ['metadata.json', 'metadata.txt']
+  C:\Users\tiago\Desktop\Venta_APP\LocalWithoutGithub\output\The_Glitch_in_Reality_Unpacking_the_Mandela_Effect: ['metadata.json', 'metadata.txt']
+  C:\Users\tiago\Desktop\Venta_APP\LocalWithoutGithub\output\The_Mandela_Effect_Mind-Bending_Realities: ['metadata.json', 'metadata.txt']
+  C:\Users\tiago\Desktop\Venta_APP\LocalWithoutGithub\output\The_SHOCKING_TRUTH_About_Ancient_Statues: ['metadata.json', 'metadata.txt']
+  C:\Users\tiago\Desktop\Venta_APP\LocalWithoutGithub\output\Top_3_Lost_Cities_Uncover_Historys_Forgotten_Wonders: ['audio_0.mp3', 'audio_1.mp3', 'audio_2.mp3', 'audio_3.mp3', 'audio_4.mp3', 'audio_5.mp3', 'audio_6.mp3', 'metadata.json', 'metadata.txt', 'scene_0_part0.mp4', 'scene_0_part1.mp4', 'scene_0_part2.mp4', 'scene_1_specific.mp4', 'scene_2_part0.mp4', 'scene_3_specific.mp4', 'scene_4_part0.mp4', 'scene_4_part1.mp4', 'scene_5_specific.mp4', 'scene_6_specific.mp4', 'short_final.mp4']
+  C:\Users\tiago\Desktop\Venta_APP\LocalWithoutGithub\output\Top_3_Los_Rostros_M├ís_Inusuales_de_la_Historia: ['audio_0.mp3', 'audio_1.mp3', 'audio_2.mp3', 'audio_3.mp3', 'audio_4.mp3', 'audio_5.mp3', 'audio_6.mp3', 'metadata.json', 'metadata.txt', 'scene_0_part0.mp4', 'scene_0_part1.mp4', 'scene_1_specific.mp4', 'scene_2_part0.mp4', 'scene_2_part1.mp4', 'scene_2_part2.mp4', 'scene_3_specific.mp4', 'scene_4_part0.mp4', 'scene_4_part1.mp4', 'scene_5_specific.mp4', 'scene_6_part0.mp4', 'scene_6_part1.mp4', 'scene_6_part2.mp4', 'short_final.mp4']
+  C:\Users\tiago\Desktop\Venta_APP\LocalWithoutGithub\output\Y_si_VIVI├ëRAMOS_en_MARTE__El_FUTURO_Inimaginable_de_la_Humanidad: ['metadata.json', 'metadata.txt', 'short_final.mp4']

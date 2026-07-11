@@ -1,0 +1,105 @@
+name: putita
+
+on:
+  schedule:
+    - cron: '11 1 * * *'  # 04:11 UTC (01:11 AM ARG - Tanda 1)
+    - cron: '11 9 * * *' # 12:11 UTC (09:11 AM ARG - Tanda 2, 8 horas despues)
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  automate:
+    name: Generate Daily Videos
+    runs-on: ubuntu-latest
+    
+    permissions:
+      actions: write
+      contents: write
+
+    steps:
+    - name: Cleanup Old Runs (older than 3 days)
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # Calculate date 3 days ago in YYYY-MM-DD format
+        CUTOFF_DATE=$(date -d "3 days ago" +%Y-%m-%d)
+        echo "Deleting runs created before $CUTOFF_DATE"
+        
+        # List and delete runs
+        gh run list --created "<$CUTOFF_DATE" --json databaseId -q '.[].databaseId' | xargs -I {} gh run delete {} || echo "No old runs to delete."
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y imagemagick ffmpeg zip
+        sudo sed -i 's/none/read,write/g' /etc/ImageMagick-6/policy.xml
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Add Swap Space (Prevent Out of Memory)
+      continue-on-error: true
+      run: |
+        sudo dd if=/dev/zero of=/swapfile bs=1M count=4096
+        sudo chmod 600 /swapfile
+        sudo mkswap /swapfile
+        sudo swapon /swapfile
+        free -h
+
+    - name: Run Daily Generation
+      env:
+        GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+        WATERMARK_TEXT: "@AIShortsGenerator"
+        LANGUAGE: "es"
+        VIDEO_COUNT: "4"
+      run: python daily_generation.py
+
+    - name: Commit & Push History
+      continue-on-error: true
+      run: |
+        git config user.name "AutoShorts Bot"
+        git config user.email "actions@github.com"
+        git pull origin main --rebase || echo "No changes to pull"
+        git add video_history.json
+        git commit -m "Update video history [skip ci]" || echo "No changes to commit"
+        git push origin main || echo "Failed to push history"
+
+    - name: Zip All Videos
+      if: always()
+      id: zip_step
+      run: |
+        # Unique name per run: batch_videos_YYYY-MM-DD_HH-MM.zip
+        FILE_NAME="batch_videos_$(date +'%Y-%m-%d_%H-%M').zip"
+        echo "filename=$FILE_NAME" >> $GITHUB_OUTPUT
+        if [ -d "output" ] && [ "$(ls -A output)" ]; then
+          cd output
+          zip -r "../$FILE_NAME" .
+          cd ..
+          echo "✅ Zipped $(ls output | wc -l) files into $FILE_NAME"
+          echo "zipped=true" >> $GITHUB_OUTPUT
+        else
+          echo "No files found in output directory to zip."
+          echo "zipped=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Upload Artifacts
+      if: always() && steps.zip_step.outputs.zipped == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ steps.zip_step.outputs.filename }}
+        path: ${{ steps.zip_step.outputs.filename }}
+        if-no-files-found: warn
+        retention-days: 3

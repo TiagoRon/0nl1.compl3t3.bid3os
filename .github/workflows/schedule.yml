@@ -2,8 +2,10 @@ name: videos_completos
 
 on:
   schedule:
-    - cron: '11 1 * * *'  # 04:11 UTC (01:11 AM ARG - Tanda 1)
-    - cron: '11 9 * * *' # 12:11 UTC (09:11 AM ARG - Tanda 2, 8 horas despues)
+    - cron: '11 1 * * *'  # 04:11 UTC (01:11 AM ARG)
+    - cron: '11 5 * * *'  # 08:11 UTC (05:11 AM ARG)
+    - cron: '11 9 * * *'  # 12:11 UTC (09:11 AM ARG)
+    - cron: '11 13 * * *' # 16:11 UTC (13:11 PM ARG)
   workflow_dispatch:
 
 env:
@@ -64,7 +66,7 @@ jobs:
         PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
         WATERMARK_TEXT: "@AIShortsGenerator"
         LANGUAGE: "es"
-        VIDEO_COUNT: "4"
+        VIDEO_COUNT: "1"
       run: python daily_generation.py
 
     - name: Commit & Push History

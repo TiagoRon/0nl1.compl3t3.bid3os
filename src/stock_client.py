@@ -242,18 +242,20 @@ def get_stock_video(query, duration_min, output_path, orientation='landscape', u
     # Download
     print(f"   ⬇️ Downloading stock video... (ID: {video_data['id']} | {best_file['width']}x{best_file['height']})")
     try:
-        vid_response = requests.get(download_url, stream=True, timeout=20)
-        
-        # PARTIAL DOWNLOAD SIMULATION (If stream allows stopping?)
-        # Sadly standard MP4 atoms might be at the end. We must download full file usually.
-        # But we optimized by choosing a smaller file (HD vs 4K).
+        import time
+        start_time = time.time()
+        vid_response = requests.get(download_url, stream=True, timeout=15)
         
         with open(output_path, 'wb') as f:
             for chunk in vid_response.iter_content(chunk_size=65536):
+                if time.time() - start_time > 120:
+                    print("   ❌ Timeout: Video took more than 120 seconds to download.")
+                    return False
                 if is_cancelled and is_cancelled():
                     print("🛑 Download Cancelled by User.")
                     return False
-                f.write(chunk)
+                if chunk:
+                    f.write(chunk)
         return True
     except Exception as e:
         print(f"   ❌ Error downloading video: {e}")
@@ -398,8 +400,29 @@ def get_youtube_clip(query, output_path, duration=4.0):
 
     try:
         print(f"      ⏱️ Extrayendo {duration}s desde t={start_time}s...")
-        with yt_dlp.YoutubeDL(ydl_opts_download) as ydl_dl:
-            ydl_dl.download([url])
+        import subprocess
+        # Using subprocess to run yt-dlp to allow for a hard timeout kill
+        yt_cmd = [
+            "yt-dlp",
+            "--format", ydl_opts_download['format'],
+            "--outtmpl", temp_output,
+            "--quiet", "--no-warnings",
+            "--socket-timeout", "20",
+            "--merge-output-format", "mp4",
+            "--extractor-args", "youtube:player_client=android,web",
+            "--impersonate", "chrome",
+            "--download-sections", f"*{start_time}-{end_time}",
+            url
+        ]
+        if 'cookiefile' in cookie_args:
+            yt_cmd.extend(["--cookies", cookie_args['cookiefile']])
+        elif 'cookiesfrombrowser' in cookie_args:
+            yt_cmd.extend(["--cookies-from-browser", cookie_args['cookiesfrombrowser'][0]])
+
+        subprocess.run(yt_cmd, check=True, timeout=180) # 3 minutes hard timeout
+    except subprocess.TimeoutExpired:
+        print(f"      ❌ Error: Extracción de yt-dlp excedió el tiempo límite (180s).")
+        return False
     except Exception as e:
         print(f"      ❌ Error descargando segmento: {e}")
         return False

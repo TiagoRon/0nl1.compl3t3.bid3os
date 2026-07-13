@@ -812,9 +812,9 @@ def create_karaoke_clips(word_timings, duration, start_offset, width=VIDEO_WIDTH
                  space_w = draw_tail.textlength(" ", font=line_font)
                  current_x += w_w + space_w
                  
-             final_y_pos = int(height * 0.75) - pad_canvas
-             base_tail = ImageClip(np.array(img_tail)).set_duration(tail_dur).set_position(("center", final_y_pos))
-             clips_sequence.append(base_tail)
+            final_y_pos = int(height * 0.75) - pad_canvas
+            base_tail = ImageClip(np.array(img_tail)).set_duration(tail_dur).set_position(("center", final_y_pos))
+            clips_sequence.append(base_tail)
             
     # Concatenate to single track
     # Use chain because all are same size (width, height)

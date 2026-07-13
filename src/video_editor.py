@@ -1114,6 +1114,18 @@ def assemble_video(scenes, music_dir, output_file, title_text=None, mood="myster
                 full_visual = full_visual.loop(duration=duration)
             full_visual = full_visual.subclip(0, duration)
             
+            # --- DEFAULT DYNAMISM ---
+            # Apply a very subtle default zoom to all scenes so they never look completely static.
+            # 3% zoom over the duration of the clip.
+            def subtle_zoom(t):
+                return 1 + 0.03 * (t / max(0.1, duration))
+            
+            if random.random() > 0.5:
+                def subtle_zoom(t):
+                    return 1.03 - 0.03 * (t / max(0.1, duration))
+                    
+            full_visual = full_visual.resize(subtle_zoom)
+            
             # --- APPLY MIDDLE EFFECTS ---
             # Current timeframe validation
             # We approximate current_time based on previously added clips
@@ -1258,12 +1270,16 @@ def assemble_video(scenes, music_dir, output_file, title_text=None, mood="myster
             scene_comp = CompositeVideoClip([full_visual.set_position("center")] + scene_overlays, size=(VIDEO_WIDTH, VIDEO_HEIGHT))
             
             # --- INTER-SCENE TRANSITIONS (Visual Overlay Only) ---
-            # Add flash transition at the start of new scenes (85% chance for higher energy)
-            # This overlays the flash without adding extra time/silence to the chronological timeline
-            if idx > 0 and random.random() < 0.85:
-                flash_t = create_flash_transition()
-                flash_t = flash_t.subclip(0, min(0.2, flash_t.duration))
-                scene_comp = CompositeVideoClip([scene_comp, flash_t.set_start(0)], size=(VIDEO_WIDTH, VIDEO_HEIGHT))
+            # Replace the annoying 85% white flash with a smart dynamic transition system
+            if idx > 0:
+                t_rand = random.random()
+                if t_rand < 0.10: # 10% Flash (Only for major impact cuts)
+                    flash_t = create_flash_transition()
+                    flash_t = flash_t.subclip(0, min(0.2, flash_t.duration))
+                    scene_comp = CompositeVideoClip([scene_comp, flash_t.set_start(0)], size=(VIDEO_WIDTH, VIDEO_HEIGHT))
+                elif t_rand < 0.35: # 25% Slide/Whip Pan transition
+                    dir_choice = random.choice(["left", "right", "bottom"])
+                    scene_comp = vfx_slide_transition(scene_comp, start_delay=0, duration=0.4, direction=dir_choice)
             
             # --- CONTEXTUAL MOOD-BASED SFX ---
             # Analyzes scene text keywords + mood to add appropriate SFX
@@ -1295,26 +1311,26 @@ def assemble_video(scenes, music_dir, output_file, title_text=None, mood="myster
             
             # Check which mood matches this scene's text
             scene_sfx = None
-            sfx_vol = 0.12
+            sfx_vol = 0.08
             
             if any(w in text_lower for w in horror_words) or mood == 'dark':
                 scene_sfx = get_sfx('horror_stinger') or get_sfx('horror_impact') or get_sfx('horror_whisper')
-                sfx_vol = 0.14
+                sfx_vol = 0.10
             elif any(w in text_lower for w in epic_words):
                 scene_sfx = get_sfx('epic_hit') or get_sfx('dramatic_reveal')
-                sfx_vol = 0.12
+                sfx_vol = 0.08
             elif any(w in text_lower for w in mystery_words) or mood == 'mystery':
                 scene_sfx = get_sfx('mystery_tone') or get_sfx('suspense_build')
-                sfx_vol = 0.10
+                sfx_vol = 0.06
             elif any(w in text_lower for w in science_words) or mood == 'curiosity':
                 scene_sfx = get_sfx('digital_blip') or get_sfx('sci_fi_scan')
-                sfx_vol = 0.10
+                sfx_vol = 0.06
             elif any(w in text_lower for w in sad_words) or mood == 'sad':
                 scene_sfx = get_sfx('sad_tone')
-                sfx_vol = 0.10
+                sfx_vol = 0.06
             elif any(w in text_lower for w in dramatic_words):
                 scene_sfx = get_sfx('dramatic_reveal') or get_sfx('epic_hit')
-                sfx_vol = 0.12
+                sfx_vol = 0.08
             
             # Apply contextual SFX at a random position in the scene (not always at start)
             if scene_sfx:
@@ -1383,10 +1399,18 @@ def assemble_video(scenes, music_dir, output_file, title_text=None, mood="myster
              curr_t = 0
              for i in range(len(processed_clips)-1):
                  curr_t += processed_clips[i].duration - 0.3 # match transition padding
-                 # 85% chance at each cut point for cinematic feel
-                 if random.random() < 0.85: 
-                      sfx_variant = get_sfx('swoosh_gen') or swoosh_sfx # Prefer generated whooshes
-                      audio_layers.append(sfx_variant.set_start(max(0, curr_t)).volumex(0.25))
+                 # Reduced from 85% to 35% to prevent annoying repetition
+                 if random.random() < 0.35: 
+                      sfx_variant = get_sfx('swoosh_gen') or swoosh_sfx 
+                      vol = random.uniform(0.06, 0.10) # Much softer (was 0.25)
+                      
+                      # Subclip randomly to create infinite variations of the same sound
+                      try:
+                          trim_start = random.uniform(0.0, min(0.3, sfx_variant.duration * 0.4))
+                          sfx_variant = sfx_variant.subclip(trim_start)
+                      except: pass
+                      
+                      audio_layers.append(sfx_variant.set_start(max(0, curr_t)).volumex(vol))
 
         # --- LAYER 2: Soft Pops/Clicks at remaining cuts ---
         pop_sfx = get_sfx('pop')
@@ -1395,9 +1419,11 @@ def assemble_video(scenes, music_dir, output_file, title_text=None, mood="myster
              curr_t = 0
              for i in range(len(processed_clips)-1):
                  curr_t += processed_clips[i].duration - 0.3
-                 if random.random() < 0.6:
+                 # Only pop if we didn't swoosh (prevent overlapping noise)
+                 if random.random() < 0.40:
                       sfx_choice = random.choice([s for s in [pop_sfx, click_sfx] if s])
-                      audio_layers.append(sfx_choice.set_start(max(0, curr_t)).volumex(0.20))
+                      vol = random.uniform(0.05, 0.08) # Much softer (was 0.20)
+                      audio_layers.append(sfx_choice.set_start(max(0, curr_t)).volumex(vol))
 
         # --- LAYER 3: Shimmer on Title (First 2 seconds) ---
         shimmer = get_sfx('shimmer')

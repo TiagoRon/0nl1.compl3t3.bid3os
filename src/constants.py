@@ -92,12 +92,12 @@ CUSTOM_TOPICS = [
 # Smart Music Mapping
 # Determine emotion -> Select file
 MUSIC_MOODS = {
-    "mystery": ["the_mystery.mp3", "science_fiction.mp3", "deep_mystery.wav", "dark_tension.wav"],
-    "happy": ["happy_life.mp3", "upbeat_energy.wav"],
-    "epic": ["cinemato.mp3", "epic_battle.wav"],
-    "curiosity": ["planning.mp3", "science_fiction.mp3", "deep_mystery.wav"],
-    "sad": ["planning.mp3", "emotional_piano.wav"],
-    "dark": ["the_mystery.mp3", "science_fiction.mp3", "dark_tension.wav"]
+    "mystery": ["the_mystery.mp3", "science_fiction.mp3", "deep_mystery.wav", "dark_tension.wav", "cyberpunk_synth.wav"],
+    "happy": ["happy_life.mp3", "upbeat_energy.wav", "lofi_chill.wav"],
+    "epic": ["cinemato.mp3", "epic_battle.wav", "cyberpunk_synth.wav"],
+    "curiosity": ["planning.mp3", "science_fiction.mp3", "deep_mystery.wav", "lofi_chill.wav"],
+    "sad": ["planning.mp3", "emotional_piano.wav", "lofi_chill.wav"],
+    "dark": ["the_mystery.mp3", "science_fiction.mp3", "dark_tension.wav", "cyberpunk_synth.wav"]
 }
 
 # Branding

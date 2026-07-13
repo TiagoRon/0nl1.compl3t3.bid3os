@@ -1442,37 +1442,37 @@ def assemble_video(scenes, music_dir, output_file, title_text=None, mood="myster
         # --- LAYER 1: Subtle Swooshes at Scene Transitions ---
         swoosh_sfx = get_sfx('swoosh')
         if swoosh_sfx:
-              curr_t = 0
-              for i in range(len(processed_clips)-1):
-                  curr_t += processed_clips[i].duration # match transition padding
-                  # Increased to 25% so they appear occasionally with the new sounds
-                  if random.random() < 0.25: 
-                       sfx_variant = get_sfx('cyber_whoosh') or get_sfx('swoosh_gen') or swoosh_sfx 
-                       vol = random.uniform(0.06, 0.10) # Much softer (was 0.25)
-                       
-                       # Subclip randomly to create infinite variations of the same sound
-                       try:
-                           trim_start = random.uniform(0.0, min(0.3, sfx_variant.duration * 0.4))
-                           sfx_variant = sfx_variant.subclip(trim_start)
-                       except: pass
-                       
-                       audio_layers.append(sfx_variant.set_start(max(0, curr_t)).volumex(vol))
+             curr_t = 0
+             for i in range(len(processed_clips)-1):
+                 curr_t += processed_clips[i].duration # match transition padding
+                 # Increased to 25% so they appear occasionally with the new sounds
+                 if random.random() < 0.25: 
+                      sfx_variant = get_sfx('cyber_whoosh') or get_sfx('swoosh_gen') or swoosh_sfx 
+                      vol = random.uniform(0.06, 0.10) # Much softer (was 0.25)
+                      
+                      # Subclip randomly to create infinite variations of the same sound
+                      try:
+                          trim_start = random.uniform(0.0, min(0.3, sfx_variant.duration * 0.4))
+                          sfx_variant = sfx_variant.subclip(trim_start)
+                      except: pass
+                      
+                      audio_layers.append(sfx_variant.set_start(max(0, curr_t)).volumex(vol))
 
-         # --- LAYER 2: Soft Pops/Clicks at remaining cuts ---
-         pop_sfx = get_sfx('pop')
-         click_sfx = get_sfx('click')
-         if pop_sfx or click_sfx:
-              curr_t = 0
-              for i in range(len(processed_clips)-1):
-                  curr_t += processed_clips[i].duration
-                  # Only pop if we didn't swoosh (prevent overlapping noise)
-                  if random.random() < 0.25:
-                       # Inject new magic chimes for variety
-                       magic = get_sfx('magic_chime')
-                       choices = [s for s in [pop_sfx, click_sfx, magic] if s]
-                       sfx_choice = random.choice(choices)
-                       vol = random.uniform(0.08, 0.15) 
-                       audio_layers.append(sfx_choice.set_start(max(0, curr_t)).volumex(vol))
+        # --- LAYER 2: Soft Pops/Clicks at remaining cuts ---
+        pop_sfx = get_sfx('pop')
+        click_sfx = get_sfx('click')
+        if pop_sfx or click_sfx:
+             curr_t = 0
+             for i in range(len(processed_clips)-1):
+                 curr_t += processed_clips[i].duration
+                 # Only pop if we didn't swoosh (prevent overlapping noise)
+                 if random.random() < 0.25:
+                      # Inject new magic chimes for variety
+                      magic = get_sfx('magic_chime')
+                      choices = [s for s in [pop_sfx, click_sfx, magic] if s]
+                      sfx_choice = random.choice(choices)
+                      vol = random.uniform(0.08, 0.15) 
+                      audio_layers.append(sfx_choice.set_start(max(0, curr_t)).volumex(vol))
 
         # --- LAYER 3: Shimmer on Title (First 2 seconds) ---
         shimmer = get_sfx('shimmer')

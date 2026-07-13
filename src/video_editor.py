@@ -1497,9 +1497,8 @@ def assemble_video(scenes, music_dir, output_file, title_text=None, mood="myster
             intro_part = final_video.subclip(0, intro_duration)
             rest_part = final_video.subclip(intro_duration)
             
-            # Visual: Zoom Out (1.2 -> 1.0) + Fade In
+            # Visual: Zoom Out (1.2 -> 1.0)
             intro_part = intro_part.resize(lambda t: 1.2 - 0.2 * (t/intro_duration))
-            intro_part = intro_part.fadein(0.6)
             
             final_video = concatenate_videoclips([intro_part, rest_part])
             
@@ -1660,6 +1659,14 @@ def assemble_video(scenes, music_dir, output_file, title_text=None, mood="myster
         try:
             final_video.close()
             for c in final_clips:
+                try:
+                    if getattr(c, 'reader', None) is not None:
+                        c.reader.close()
+                except: pass
+                try:
+                    if getattr(c, 'audio', None) is not None and getattr(c.audio, 'reader', None) is not None:
+                        c.audio.reader.close_proc()
+                except: pass
                 try: c.close()
                 except: pass
             for s in sfx_lib.values():
@@ -1676,6 +1683,14 @@ def assemble_video(scenes, music_dir, output_file, title_text=None, mood="myster
         try:
             if 'final_video' in locals(): final_video.close()
             for c in final_clips:
+                try:
+                    if getattr(c, 'reader', None) is not None:
+                        c.reader.close()
+                except: pass
+                try:
+                    if getattr(c, 'audio', None) is not None and getattr(c.audio, 'reader', None) is not None:
+                        c.audio.reader.close_proc()
+                except: pass
                 try: c.close()
                 except: pass
             for s in sfx_lib.values():

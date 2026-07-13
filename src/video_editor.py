@@ -1356,7 +1356,7 @@ def assemble_video(scenes, music_dir, output_file, title_text=None, mood="myster
             scene_comp = scene_comp.set_audio(audioclip)
             
             # --- MEMORY OOM FIX: RENDER SCENE TO DISK ---
-            print(f"      💾 Rendering scene {idx} to disk to prevent RAM exhaustion...")
+            print(f"      💾 Rendering scene {idx} to disk to prevent RAM exhaustion...", flush=True)
             temp_scene_path = os.path.join(os.getcwd(), "output", f"temp_scene_{idx}.mp4")
             os.makedirs(os.path.dirname(temp_scene_path), exist_ok=True)
             

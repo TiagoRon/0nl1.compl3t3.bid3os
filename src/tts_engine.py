@@ -11,9 +11,16 @@ AVAILABLE_VOICES_ES = [
     "es-AR-TomasNeural",  # Argentine Male
     "es-MX-JorgeNeural",  # Mexican Male
     "es-US-AlonsoNeural", # US Spanish Male
-    "es-US-PalomaNeural"  # US Spanish Female
+    "es-US-PalomaNeural", # US Spanish Female
+    "es-AR-ElenaNeural",  # Argentine Female
+    "es-CL-LorenzoNeural",# Chilean Male
+    "es-CO-GonzaloNeural",# Colombian Male
+    "es-ES-ElviraNeural", # Spanish Female
+    "es-PE-CamilaNeural", # Peruvian Female
+    "es-VE-SebastianNeural", # Venezuelan Male
+    "es-DO-EmilioNeural", # Dominican Male
+    "es-CR-MariaNeural"   # Costa Rican Female
 ]
-
 # List of high-quality English Neural voices
 AVAILABLE_VOICES_EN = [
     "en-US-JennyNeural",

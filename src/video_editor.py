@@ -70,9 +70,10 @@ class EffectsManager:
         if random.random() > prob:
             return None
             
-        # EXPANDED pool — 10 effects for maximum variety
+        # EXPANDED pool — 13 effects for maximum variety
         opts = ["glitch_mild", "soft_zoom", "flash", "shake", "pulse", "speed_ramp",
-                "color_shift", "whip_pan", "vignette_pulse", "zoom_snap"]
+                "color_shift", "whip_pan", "vignette_pulse", "zoom_snap",
+                "scanlines", "rgb_split", "invert_flash"]
         
         # Don't repeat the last 3 effects
         choices = [o for o in opts if o not in self.used_middle_effects[-3:]]
@@ -293,6 +294,36 @@ def vfx_mirror(clip):
     Strong signature change for avoiding 'Reused Content'.
     """
     return clip.fx(vfx.mirror_x)
+
+def vfx_invert(clip, duration=0.25):
+    """Inverts colors for a brief moment."""
+    def invert_filter(get_frame, t):
+        if t < duration:
+            return 255 - get_frame(t)
+        return get_frame(t)
+    return clip.fl(invert_filter)
+
+def vfx_scanlines(clip, intensity=0.3):
+    """Adds subtle TV scanlines."""
+    def scanlines_filter(get_frame, t):
+        frame = get_frame(t).copy()
+        frame[::3, :, :] = (frame[::3, :, :] * (1.0 - intensity)).astype(np.uint8)
+        return frame
+    return clip.fl(scanlines_filter)
+
+def vfx_rgb_split_mild(clip, shift=8, duration=0.4):
+    """Mild RGB split (chromatic aberration)"""
+    def rgb_split(get_frame, t):
+        frame = get_frame(t).copy()
+        if t > duration: return frame
+        out = np.zeros_like(frame)
+        out[:, :, 1] = frame[:, :, 1]
+        out[:, shift:, 0] = frame[:, :-shift, 0]
+        out[:, :shift, 0] = frame[:, :shift, 0]
+        out[:, :-shift, 2] = frame[:, shift:, 2]
+        out[:, -shift:, 2] = frame[:, -shift:, 2]
+        return out
+    return clip.fl(rgb_split)
 
 def create_title_card(text, duration=2.5, width=VIDEO_WIDTH, height=VIDEO_HEIGHT):
     """
@@ -1188,6 +1219,23 @@ def assemble_video(scenes, music_dir, output_file, title_text=None, mood="myster
                     except:
                         pass
                 
+                elif effect_type == "scanlines":
+                    full_visual = vfx_scanlines(full_visual)
+                    sfx = get_sfx('retro_ui_click')
+                    if sfx: audioclip = CompositeAudioClip([audioclip, sfx.set_start(0).volumex(0.15)])
+                    effect_applied = True
+                    
+                elif effect_type == "rgb_split":
+                    full_visual = vfx_rgb_split_mild(full_visual, shift=12, duration=0.6)
+                    sfx = get_sfx('cyber_whoosh') or get_sfx('digital_blip')
+                    if sfx: audioclip = CompositeAudioClip([audioclip, sfx.set_start(0).volumex(0.15)])
+                    effect_applied = True
+                    
+                elif effect_type == "invert_flash":
+                    full_visual = vfx_invert(full_visual, duration=0.25)
+                    sfx = get_sfx('magic_chime') or get_sfx('impact')
+                    if sfx: audioclip = CompositeAudioClip([audioclip, sfx.set_start(0).volumex(0.25)])
+                    effect_applied = True
                 # --- NEW EFFECTS V4 ---
                 elif effect_type == "color_shift":
                     # Tint the scene briefly (cinematic color wash)

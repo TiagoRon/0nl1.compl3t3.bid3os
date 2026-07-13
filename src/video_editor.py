@@ -62,10 +62,10 @@ class EffectsManager:
             return None
             
         # Probability based on style
-        prob = 0.5
-        if self.current_style == self.STYLE_HIGH_ENERGY: prob = 0.75
-        elif self.current_style == self.STYLE_SMOOTH: prob = 0.45
-        elif self.current_style == self.STYLE_MINIMAL: prob = 0.25
+        prob = 0.20
+        if self.current_style == self.STYLE_HIGH_ENERGY: prob = 0.30
+        elif self.current_style == self.STYLE_SMOOTH: prob = 0.15
+        elif self.current_style == self.STYLE_MINIMAL: prob = 0.05
         
         if random.random() > prob:
             return None
@@ -1363,9 +1363,9 @@ def assemble_video(scenes, music_dir, output_file, title_text=None, mood="myster
             os.makedirs(os.path.dirname(temp_scene_path), exist_ok=True)
             
             try:
-                scene_comp.write_videofile(temp_scene_path, codec="libx264", audio_codec="aac", preset="ultrafast", threads=1, logger=None)
+                scene_comp.write_videofile(temp_scene_path, codec="libx264", audio_codec="aac", preset="ultrafast", bitrate="5000k", threads=1, logger=None)
             except Exception as render_err:
-                scene_comp.write_videofile(temp_scene_path, codec="libx264", audio_codec="aac", preset="ultrafast", threads=1)
+                scene_comp.write_videofile(temp_scene_path, codec="libx264", audio_codec="aac", preset="ultrafast", bitrate="5000k", threads=1)
                 
             scene_comp.close()
             
@@ -1406,8 +1406,8 @@ def assemble_video(scenes, music_dir, output_file, title_text=None, mood="myster
              curr_t = 0
              for i in range(len(processed_clips)-1):
                  curr_t += processed_clips[i].duration # match transition padding
-                 # Reduced from 85% to 35% to prevent annoying repetition
-                 if random.random() < 0.35: 
+                 # Reduced from 35% to 10% to prevent annoying repetition
+                 if random.random() < 0.10: 
                       sfx_variant = get_sfx('swoosh_gen') or swoosh_sfx 
                       vol = random.uniform(0.06, 0.10) # Much softer (was 0.25)
                       
@@ -1427,7 +1427,7 @@ def assemble_video(scenes, music_dir, output_file, title_text=None, mood="myster
              for i in range(len(processed_clips)-1):
                  curr_t += processed_clips[i].duration
                  # Only pop if we didn't swoosh (prevent overlapping noise)
-                 if random.random() < 0.40:
+                 if random.random() < 0.10:
                       sfx_choice = random.choice([s for s in [pop_sfx, click_sfx] if s])
                       vol = random.uniform(0.05, 0.08) # Much softer (was 0.20)
                       audio_layers.append(sfx_choice.set_start(max(0, curr_t)).volumex(vol))

@@ -344,26 +344,29 @@ def get_youtube_clip(query, output_path, duration=4.0):
     url = None
     vid_duration = 0
 
-    for search_q in search_attempts:
-        try:
-            with yt_dlp.YoutubeDL(ydl_opts_info) as ydl:
-                print(f"      🔍 Probando búsqueda: '{search_q}'...")
-                info = ydl.extract_info(search_q, download=False)
-                candidate = None
-                if info and 'entries' in info and len(info['entries']) > 0:
-                    candidate = info['entries'][0]
-                elif info:
-                    candidate = info
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts_info) as ydl:
+            for search_q in search_attempts:
+                try:
+                    # print(f"      🔍 Probando búsqueda: '{search_q}'...")
+                    info = ydl.extract_info(search_q, download=False)
+                    candidate = None
+                    if info and 'entries' in info and len(info['entries']) > 0:
+                        candidate = info['entries'][0]
+                    elif info:
+                        candidate = info
 
-                if candidate and candidate.get('duration', 0) > 0:
-                    video = candidate
-                    vid_duration = video.get('duration', 0)
-                    url = video.get('webpage_url') or video.get('url')
-                    print(f"      ✅ Encontrado: '{video.get('title', '?')}' ({vid_duration}s)")
-                    break  # Successful — stop trying
-        except Exception as e:
-            print(f"      ⚠️ Búsqueda fallida ({search_q}): {e}")
-            continue
+                    if candidate and candidate.get('duration', 0) > 0:
+                        video = candidate
+                        vid_duration = video.get('duration', 0)
+                        url = video.get('webpage_url') or video.get('url')
+                        print(f"      ✅ Encontrado: '{video.get('title', '?')}' ({vid_duration}s)")
+                        break  # Successful — stop trying
+                except Exception as e:
+                    print(f"      ⚠️ Búsqueda fallida ({search_q}): {str(e)[:50]}")
+                    continue
+    except Exception as general_e:
+        print(f"      ❌ Error fatal de yt-dlp: {str(general_e)[:50]}")
 
     if not video or not url:
         print(f"      ⚠️ No se encontró ningún video en YouTube para '{query}'.")

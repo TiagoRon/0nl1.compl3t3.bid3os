@@ -627,7 +627,8 @@ def create_karaoke_clips(word_timings, duration, start_offset, width=VIDEO_WIDTH
             
     for ft in final_timings:
         if ft['gap_before'] > 0.001:
-            clips_sequence.append(ColorClip(size=(width, height), color=(0,0,0,0), duration=ft['gap_before']))
+            empty_img = np.zeros((height, width, 4), dtype=np.uint8)
+            clips_sequence.append(ImageClip(empty_img).set_duration(ft['gap_before']))
             
         orig_i = ft['original_idx']
         
@@ -1357,7 +1358,8 @@ def assemble_video(scenes, music_dir, output_file, title_text=None, mood="myster
             
             # --- MEMORY OOM FIX: RENDER SCENE TO DISK ---
             print(f"      💾 Rendering scene {idx} to disk to prevent RAM exhaustion...", flush=True)
-            temp_scene_path = os.path.join(os.getcwd(), "output", f"temp_scene_{idx}.mp4")
+            out_dir = os.path.dirname(output_file) if output_file else os.path.join(os.getcwd(), "output")
+            temp_scene_path = os.path.join(out_dir, f"temp_scene_{idx}.mp4")
             os.makedirs(os.path.dirname(temp_scene_path), exist_ok=True)
             
             try:
@@ -1387,21 +1389,11 @@ def assemble_video(scenes, music_dir, output_file, title_text=None, mood="myster
         # --- FINAL ASSEMBLY & TRANSITIONS ---
         # Instead of raw "chain", we use crossfades and dynamic sliding for a cinematic look
         if len(final_clips) > 1:
-            print("      🎬 Applying cinematic crossfade transitions...")
-            # Apply crossfadein to all clips except the first one
-            processed_clips = [final_clips[0]]
-            for i in range(1, len(final_clips)):
-                # Mix of crossfade and slide/fade transitions
-                t_choice = random.choice(["crossfade", "crossfade", "fade_slide"])
-                c = final_clips[i]
-                if t_choice == "crossfade":
-                    c = c.crossfadein(0.3)
-                else:
-                    # Fade in with a slight brightness pop
-                    c = c.fadein(0.2).fl(lambda gf, t: np.minimum(255, gf(t) * (1.2 if t < 0.1 else 1.0)).astype('uint8'))
-                processed_clips.append(c)
+            print("      🎬 Applying fast cuts...")
+            processed_clips = final_clips
             final_video = concatenate_videoclips(processed_clips, method="chain")
         else:
+            processed_clips = final_clips
             final_video = final_clips[0]
         
         # Audio Mixing
@@ -1413,7 +1405,7 @@ def assemble_video(scenes, music_dir, output_file, title_text=None, mood="myster
         if swoosh_sfx:
              curr_t = 0
              for i in range(len(processed_clips)-1):
-                 curr_t += processed_clips[i].duration - 0.3 # match transition padding
+                 curr_t += processed_clips[i].duration # match transition padding
                  # Reduced from 85% to 35% to prevent annoying repetition
                  if random.random() < 0.35: 
                       sfx_variant = get_sfx('swoosh_gen') or swoosh_sfx 
@@ -1433,7 +1425,7 @@ def assemble_video(scenes, music_dir, output_file, title_text=None, mood="myster
         if pop_sfx or click_sfx:
              curr_t = 0
              for i in range(len(processed_clips)-1):
-                 curr_t += processed_clips[i].duration - 0.3
+                 curr_t += processed_clips[i].duration
                  # Only pop if we didn't swoosh (prevent overlapping noise)
                  if random.random() < 0.40:
                       sfx_choice = random.choice([s for s in [pop_sfx, click_sfx] if s])

@@ -1354,7 +1354,22 @@ def assemble_video(scenes, music_dir, output_file, title_text=None, mood="myster
                     audioclip = CompositeAudioClip([audioclip, thunder.set_start(0.5).volumex(0.08)])
             
             scene_comp = scene_comp.set_audio(audioclip)
-            final_clips.append(scene_comp)
+            
+            # --- MEMORY OOM FIX: RENDER SCENE TO DISK ---
+            print(f"      💾 Rendering scene {idx} to disk to prevent RAM exhaustion...")
+            temp_scene_path = os.path.join(os.getcwd(), "output", f"temp_scene_{idx}.mp4")
+            os.makedirs(os.path.dirname(temp_scene_path), exist_ok=True)
+            
+            try:
+                scene_comp.write_videofile(temp_scene_path, codec="libx264", audio_codec="aac", preset="ultrafast", threads=1, logger=None)
+            except Exception as render_err:
+                scene_comp.write_videofile(temp_scene_path, codec="libx264", audio_codec="aac", preset="ultrafast", threads=1)
+                
+            scene_comp.close()
+            
+            # Load back the simple clip (which consumes almost 0 memory compared to a CompositeVideoClip)
+            simple_clip = VideoFileClip(temp_scene_path)
+            final_clips.append(simple_clip)
             
             # --- MEMORY SAFETY ---
             # Explicitly clear large objects if possible

@@ -640,31 +640,44 @@ def create_karaoke_clips(word_timings, duration, start_offset, width=VIDEO_WIDTH
         
         line_font = line_font_map.get(l_idx, font)
         
-        img_base = Image.new('RGBA', (width, height), (0, 0, 0, 0))
-        draw_base = ImageDraw.Draw(img_base)
-        
         full_line_lbl = " ".join(current_line_words)
-        bbox = draw_base.textbbox((0, 0), full_line_lbl, font=line_font)
+        
+        # Calculate exactly how big the text is to avoid creating a massive 1280x720 transparent image
+        # which causes OOM (Out Of Memory) when doing 40+ scenes.
+        temp_img = Image.new('RGBA', (10, 10), (0,0,0,0))
+        temp_draw = ImageDraw.Draw(temp_img)
+        bbox = temp_draw.textbbox((0, 0), full_line_lbl, font=line_font)
+        
         line_w = 0
         line_h = bbox[3] - bbox[1]
         for w_idx, w_txt in enumerate(current_line_words):
-             w_bbox = draw_base.textbbox((0, 0), w_txt, font=line_font)
+             w_bbox = temp_draw.textbbox((0, 0), w_txt, font=line_font)
              line_w += (w_bbox[2] - w_bbox[0])
              if w_idx < len(current_line_words) - 1:
-                 line_w += draw_base.textlength(" ", font=line_font)
+                 line_w += temp_draw.textlength(" ", font=line_font)
         line_w = int(line_w)
+        
+        # Tightly cropped canvas
+        pad_canvas = 60
+        canvas_w = line_w + (pad_canvas * 2)
+        canvas_h = line_h + (pad_canvas * 2) + 50 # shadow/stroke padding
+        
+        img_base = Image.new('RGBA', (canvas_w, canvas_h), (0, 0, 0, 0))
+        draw_base = ImageDraw.Draw(img_base)
         
         if is_header:
             start_y = int(height * 0.75)
         else:
             start_y = int(height * 0.75)
             
-        current_x = (width - line_w) // 2
+        # Draw on local canvas coordinates instead of screen coordinates
+        local_start_y = pad_canvas
+        current_x = pad_canvas
         
         # Draw Aesthetic Yellow Box for Header
         if is_header:
              pad = 40 
-             bbox_full = draw_base.textbbox((current_x, start_y), full_line_lbl, font=line_font)
+             bbox_full = draw_base.textbbox((current_x, local_start_y), full_line_lbl, font=line_font)
              true_top = bbox_full[1]
              true_bottom = bbox_full[3]
              draw_base.rounded_rectangle(
@@ -673,7 +686,7 @@ def create_karaoke_clips(word_timings, duration, start_offset, width=VIDEO_WIDTH
              )
         
         active_word_x = 0
-        active_word_y = start_y
+        active_word_y = local_start_y
         active_word_txt = ""
              
         for w_idx, w_txt in enumerate(current_line_words):
@@ -687,15 +700,20 @@ def create_karaoke_clips(word_timings, duration, start_offset, width=VIDEO_WIDTH
                          rad = math.radians(angle)
                          dx = int(math.cos(rad) * stroke_width)
                          dy = int(math.sin(rad) * stroke_width)
-                         draw_base.text((current_x + dx, start_y + dy), w_txt, font=line_font, fill=stroke_color)
-                     draw_base.text((current_x + shadow_offset[0], start_y + shadow_offset[1]), w_txt, font=line_font, fill=shadow_color)
-                 draw_base.text((current_x, start_y), w_txt, font=line_font, fill=fill)
+                         draw_base.text((current_x + dx, local_start_y + dy), w_txt, font=line_font, fill=stroke_color)
+                     draw_base.text((current_x + shadow_offset[0], local_start_y + shadow_offset[1]), w_txt, font=line_font, fill=shadow_color)
+                 draw_base.text((current_x, local_start_y), w_txt, font=line_font, fill=fill)
              
              w_bbox = draw_base.textbbox((0, 0), w_txt, font=line_font)
              w_w = w_bbox[2] - w_bbox[0]
              space_w = draw_base.textlength(" ", font=line_font)
              current_x += w_w + space_w
              
+        # We must position the small canvas on the main video relative to the original start_y!
+        # current_x starts at pad_canvas. 
+        # So horizontal center is "center" in MoviePy.
+        # Vertical position: start_y is where the text top should be, but our canvas has padding `pad_canvas` above the text.
+        final_y_pos = start_y - pad_canvas
         base_clip = ImageClip(np.array(img_base)).set_duration(ft['duration'])
         
         if active_word_txt:
@@ -736,6 +754,7 @@ def create_karaoke_clips(word_timings, duration, start_offset, width=VIDEO_WIDTH
         else:
             txt_clip = base_clip
             
+        txt_clip = txt_clip.set_position(("center", final_y_pos))
         clips_sequence.append(txt_clip)
         
     if not clips_sequence: return []
@@ -750,25 +769,34 @@ def create_karaoke_clips(word_timings, duration, start_offset, width=VIDEO_WIDTH
             l_idx = mapping["line_idx"]
             line_font = line_font_map.get(l_idx, font)
             
-            img_tail = Image.new('RGBA', (width, height), (0, 0, 0, 0))
-            draw_tail = ImageDraw.Draw(img_tail)
-            
+            # Calculate tight bounding box for the tail as well
+            temp_img = Image.new('RGBA', (10, 10), (0,0,0,0))
+            temp_draw = ImageDraw.Draw(temp_img)
             full_line_lbl = " ".join(last_line_words)
-            bbox = draw_tail.textbbox((0, 0), full_line_lbl, font=line_font)
+            bbox = temp_draw.textbbox((0, 0), full_line_lbl, font=line_font)
+            
             line_w = 0
+            line_h = bbox[3] - bbox[1]
             for w_idx, w_txt in enumerate(last_line_words):
-                 w_bbox = draw_tail.textbbox((0, 0), w_txt, font=line_font)
+                 w_bbox = temp_draw.textbbox((0, 0), w_txt, font=line_font)
                  line_w += (w_bbox[2] - w_bbox[0])
                  if w_idx < len(last_line_words) - 1:
-                     line_w += draw_tail.textlength(" ", font=line_font)
+                     line_w += temp_draw.textlength(" ", font=line_font)
             line_w = int(line_w)
             
-            start_y = int(height * 0.75)
-            current_x = (width - line_w) // 2
+            pad_canvas = 60
+            canvas_w = line_w + (pad_canvas * 2)
+            canvas_h = line_h + (pad_canvas * 2) + 50
+            
+            img_tail = Image.new('RGBA', (canvas_w, canvas_h), (0, 0, 0, 0))
+            draw_tail = ImageDraw.Draw(img_tail)
+            
+            local_start_y = pad_canvas
+            current_x = pad_canvas
             
             # Draw aesthetic yellow box for tail
             pad = 40 
-            bbox_full = draw_tail.textbbox((current_x, start_y), full_line_lbl, font=line_font)
+            bbox_full = draw_tail.textbbox((current_x, local_start_y), full_line_lbl, font=line_font)
             true_top = bbox_full[1]
             true_bottom = bbox_full[3]
             draw_tail.rounded_rectangle(
@@ -778,14 +806,15 @@ def create_karaoke_clips(word_timings, duration, start_offset, width=VIDEO_WIDTH
             
             # Draw all words in default color for the tail
             for w_txt in last_line_words:
-                 draw_tail.text((current_x, start_y), w_txt, font=line_font, fill=default_color)
+                 draw_tail.text((current_x, local_start_y), w_txt, font=line_font, fill=default_color)
                  w_bbox = draw_tail.textbbox((0, 0), w_txt, font=line_font)
                  w_w = w_bbox[2] - w_bbox[0]
                  space_w = draw_tail.textlength(" ", font=line_font)
                  current_x += w_w + space_w
                  
-            base_tail = ImageClip(np.array(img_tail)).set_duration(tail_dur)
-            clips_sequence.append(base_tail)
+             final_y_pos = int(height * 0.75) - pad_canvas
+             base_tail = ImageClip(np.array(img_tail)).set_duration(tail_dur).set_position(("center", final_y_pos))
+             clips_sequence.append(base_tail)
             
     # Concatenate to single track
     # Use chain because all are same size (width, height)

@@ -1,4 +1,4 @@
-name: Manual Video Generation
+name: Manual gen itc
 run-name: "Gen: ${{ inputs.video_style }} - ${{ inputs.video_topic }} (#${{ github.run_number }})"
 
 on:

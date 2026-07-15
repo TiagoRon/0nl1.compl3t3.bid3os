@@ -2,10 +2,10 @@ name: videos_completos
 
 on:
   schedule:
-    - cron: '0 1 * * *'  # 04:11 UTC (01:11 AM ARG)
-    - cron: '40 2 * * *'  # 08:11 UTC (05:11 AM ARG)
-    - cron: '50 3 * * *'  # 12:11 UTC (09:11 AM ARG)
-    - cron: '20 5 * * *' # 16:11 UTC (13:11 PM ARG)
+    - cron: '0 1 * * *'  # 01:20 UTC (01:11 AM ARG)
+    - cron: '20 2 * * *'  # 02:20 UTC (05:11 AM ARG)
+    - cron: '40 3 * * *'  # 03:40 UTC (09:11 AM ARG)
+    - cron: '20 5 * * *' # 05:20 UTC (13:11 PM ARG)
   workflow_dispatch:
 
 env:

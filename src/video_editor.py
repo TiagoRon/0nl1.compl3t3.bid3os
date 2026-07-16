@@ -12,8 +12,8 @@ from src.constants import MUSIC_MOODS, FONT_PATH
 
 # --- VIDEO RESOLUTION ---
 # Change these to switch between 720p and 1080p globally
-VIDEO_WIDTH = 1280
-VIDEO_HEIGHT = 720
+VIDEO_WIDTH = 1920
+VIDEO_HEIGHT = 1080
 
 # Fix for Pillow 10+ removing ANTIALIAS
 if not hasattr(Image, 'ANTIALIAS'):
@@ -1689,12 +1689,12 @@ def assemble_video(scenes, music_dir, output_file, title_text=None, mood="myster
         # OPTIMIZED WRITE: ULTRAFAST PRESET, 1 THREAD (To prevent Out of Memory in GH Actions)
         final_video.write_videofile(
             output_file, 
-            fps=24, 
+            fps=30, 
             codec='libx264', 
             audio_codec='aac', 
-            bitrate="5000k", 
-            preset='ultrafast',    # OPTIMIZATION: Less memory buffer
-            threads=1,            # OPTIMIZATION: 1 thread saves huge amount of RAM
+            bitrate="10000k", 
+            preset='veryfast',    # OPTIMIZATION: Balanced quality/speed for better visuals
+            threads=2,            # OPTIMIZATION: 2 threads for better performance without too much RAM
             logger=custom_logger
         )
         # Cleanup Resources
